@@ -1,7 +1,10 @@
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.Scanner;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -11,8 +14,93 @@ import org.json.simple.parser.ParseException;
 public class Test {
 
 	public static void main( String... args ) {
-		parseRelations( );
+		testDate( );
+		//testWeather( );
+		//testSimulationWeather( );
+		
 	}
+	
+	public static void testSimulationWeather( ) {
+		
+		Topology test = new Topology( "src/prosumers_info.json", "src/relations_info.json", "src/KNMI_20171231.txt", 3);
+		Thread t = new Thread( test );
+		t.run();
+		
+	}
+	
+	public static void testWeather( ) {
+		WeatherDatabase database = new WeatherDatabase( "src/KNMI_20171231.txt" );
+		database.prediction();
+	}
+	
+	public static void testDate( ) {
+		Date date = new Date( 1998, 9 - 1 ,18 );
+		System.out.println( date.getYear() );
+		System.out.println( date.getMonth() );
+		System.out.println( date.getDate() );
+		System.out.println( date );
+	}
+	
+	public static void testTxt( ) {
+		
+		try {
+			Scanner file = new Scanner( new File( "src/KNMI_20171231.txt" ));
+			
+			String line = file.nextLine();
+			while( line.charAt(0) == '#') {
+				line = file.nextLine();
+			}
+			//line = line.substring( line.indexOf(',') + 1, line.length());
+			System.out.println( line );
+			//System.out.println( line.indexOf(',') );
+			
+			while( file.hasNextLine() ) {
+				line = file.nextLine();
+				System.out.println( line );
+			}
+			
+			/*
+			double snt = 0;
+			for( int i = 0; i < line.length(); i++ ) {
+				if( line.charAt( i ) != ',' ) {
+					if( '0' <= line.charAt(i) && line.charAt(i) <='9' ) {
+						snt = snt * 10 + line.charAt(i) - '0';
+					}
+				}else {
+					line = line.substring( i );
+					System.out.println( snt );
+					System.out.println( line );
+				}
+			}
+			
+			while( line.charAt(0) != EOF ) {
+
+				while( line.charAt(0) != ',' && line.charAt(0) != 3 ) {
+					if( '0' <= line.charAt(0) && line.charAt(0) <='9' ) {
+						snt = snt * 10 + line.charAt(0) - '0';
+					}
+					line = line.substring( 1 );
+				}
+				System.out.println( snt );
+				
+			}
+			*/
+			//System.out.println( line );
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private static void testTopology( ) {
+		
+		Topology test = new Topology( "src/prosumers_info.json", "src/relations_info.json" );
+		test.info();
+		
+	}
+	
 	
 	private static void parseProsumers( ) {
 		JSONParser parser = new JSONParser();

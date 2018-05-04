@@ -15,7 +15,7 @@ import org.json.simple.parser.ParseException;
  * @author Luigi
  *
  */
-public class Topology {
+public class Topology implements Runnable {
 
 	// matrix representation for a matrix M:
 	// prosumer/prosumer  0 1
@@ -53,7 +53,11 @@ public class Topology {
 	private int electric_Utility;
 	
 	/** provide information of weather */
-	private WeatherSimulator weather;
+	private WeatherDatabase weather_database;
+	
+	private double voltage;
+	
+	private int remaining_day;
 	
 	/**
 	 * Build a topology which prosumers are nodes, and connections between two prosumers are links
@@ -63,11 +67,25 @@ public class Topology {
 	 */
 	public Topology( String prosumer_info, String relation_info ) {
 		
-		this.houseNumber_id = new HashMap<Integer, Integer>( );
-		this.prosumer_ID = 0;
 		parseProsumers( prosumer_info );
 		initialMatrix();
 		parseRelation( relation_info );
+		
+	}
+	
+	public Topology( String prosumer_info, String relation_info, String weather_info ) {
+		
+		this( prosumer_info, relation_info );
+
+		weather_database = new WeatherDatabase( weather_info );
+		
+	}
+
+	public Topology( String prosumer_info, String relation_info, String weather_info, int remaining_day ) {
+		
+		this( prosumer_info, relation_info, weather_info );
+		
+		this.remaining_day = remaining_day;
 		
 	}
 	
@@ -109,6 +127,10 @@ public class Topology {
 	 * @param file path of a file that contain information of all prosumers
 	 */
 	private void parseProsumers( String file ) {
+
+		this.houseNumber_id = new HashMap<Integer, Integer>( );
+		this.prosumer_ID = 0;
+		this.prosumers = new ArrayList<Prosumer> ();
 		
 		JSONParser parser = new JSONParser();
 		Object prosumers_info;
@@ -139,13 +161,14 @@ public class Topology {
 		
 		int houseNumber = Integer.parseInt( (String) obj.get("houseNumber"));
 		this.houseNumber_id.put( houseNumber, this.prosumer_ID);
+		//System.out.println( houseNumber );
 		
 		Prosumer prosumer = new Prosumer( this.prosumer_ID, houseNumber );
 		this.prosumers.add( prosumer );
 		this.prosumer_ID++;
 		
 		parseWindTurbine( prosumer, (JSONArray)obj.get("windTurbines") );
-		parsePhotovoltaicPanel( prosumer, (JSONArray)obj.get("photovoltaicPanels") );
+		parsePhotovoltaicPanel( prosumer, (JSONArray)obj.get("photovolaticPanels") );
 		
 	}
 	
@@ -163,6 +186,7 @@ public class Topology {
 			double bladeLength = Double.parseDouble( (String) windTurbine.get("bladeLength") );
 			double maxPowerOutput = Double.parseDouble( (String) windTurbine.get("maxPowerOutput") );
 			prosumer.addWindTurbine( new WindTurbine( bladeLength, maxPowerOutput ) );
+			//System.out.println( bladeLength + " " + maxPowerOutput);
         }
 		
 	}
@@ -181,6 +205,7 @@ public class Topology {
 			double panelArea = Double.parseDouble( (String) windTurbine.get("panelArea") );
 			double maxPowerOutput = Double.parseDouble( (String) windTurbine.get("maxPowerOutput") );
 			prosumer.addPhotovoltaicPanel( new PhotovoltaicPanel( panelArea, maxPowerOutput ) );
+			//System.out.println( panelArea + " " + maxPowerOutput);
         }
 		
 	}
@@ -232,6 +257,58 @@ public class Topology {
 		this.max_loads[houseNumber2][houseNumber1] = maxLoad;
 		this.connections[houseNumber1][houseNumber2] = resistance;
 		this.connections[houseNumber2][houseNumber1] = resistance;
+		
+	}
+	
+	/**
+	 * print all information(house number, wind turbines, photovoltaic panels) of prosumers, and their relationship
+	 */
+	public void info( ) {
+		for( Prosumer prosumer : this.prosumers ) {
+			System.out.println( prosumer.info() );
+		}
+		int n = prosumers.size();
+		for(int i = 0; i < n; i++ ) {
+			for( int j = 0; j < i; j++ ) {
+				if( this.connections[i][j] >= 0 ) {
+					System.out.println( "Connection between " + prosumers.get(i).getHouseNumber() + " and " + prosumers.get(j).getHouseNumber() + ": " + this.connections[i][j] + "R, " + this.max_loads[i][j] + "J" );
+				}
+			}
+		}
+	}
+
+	private void simulation_hour( Weather weather, int hour ) {
+		// simulate weather -> renewable energy production -> consumption for each prosumer -> optimising the energy flow
+		
+		double wind_speed = weather.windSpeed();
+		System.out.println( weather.date() + " at " + hour + ": " + wind_speed);
+		
+	}
+	
+	public void simulation_day( ) {
+		int hour = 0;
+		Weather weather = this.weather_database.nextWeather();
+		weather.info();
+		
+		for( ; hour < 24; hour++ ) {
+			try {
+				Thread.sleep( 1000 );
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			simulation_hour( weather, hour );
+		}
+	}
+	
+	@Override
+	public void run() {
+		
+		while( this.remaining_day > 0 ) {
+			this.remaining_day--;
+			//simulate the consume and produce
+			simulation_day( );
+		}
 		
 	}
 	

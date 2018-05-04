@@ -1,109 +1,174 @@
 import java.util.ArrayList;
 
 /**
- * A house that both consume and produce energy
+ * This class contains information about one prosumer, is used to simulate the
+ * energy production and consumption of that prosumer
+ * 
  * @author Luigi
  *
  */
 
 public class Prosumer {
 
-	// add a storage
-	
-	/** automatically generate by program to represent a prosumer */
+	/** A number that automatically generate by program to represent a prosumer */
 	// which is also the index of column and row
 	private int id;
-	
-	/** house number of the prosumer */
+
+	/** House number of the prosumer */
 	private int houseNumber;
-	
-	/** array of wind turbines */
+
+	/** A array of wind turbines */
 	private ArrayList<WindTurbine> windTurbines;
-	
-	/** array of photovoltaic panels */
+
+	/** A array of photovoltaic panels */
 	private ArrayList<PhotovoltaicPanel> photovoltaicPanels;
-	
+
+	// add a storage
+	private ArrayList<Double> recording;
+	private double energy_remaining;
+
+	/** A array list of daily consumption of energy of the prosumer */
+	private ArrayList<Double> energy_consumption;
+
+	private double net_profit = 0;
+
 	/**
 	 * Build a house that both consume and produce energy
-	 * @param id automatically generate by program to represent a prosumer
-	 * @param houseNumber identity of prosumer
+	 * 
+	 * @param id
+	 *            A number that automatically generate by program to represent a prosumer
+	 * @param houseNumber
+	 *            A identity of prosumer
 	 */
-	public Prosumer( int id, int houseNumber ) {
+	public Prosumer(int id, int houseNumber) {
 		this.id = id;
 		this.houseNumber = houseNumber;
-		this.windTurbines = new ArrayList<WindTurbine> ();
-		this.photovoltaicPanels = new ArrayList<PhotovoltaicPanel> ();
+		this.windTurbines = new ArrayList<WindTurbine>();
+		this.photovoltaicPanels = new ArrayList<PhotovoltaicPanel>();
 	}
-	
+
 	/**
 	 * Add a wind turbine to the prosumer
-	 * @param wt wind turbine
+	 * 
+	 * @param wt
+	 *            wind turbine
 	 */
-	public void addWindTurbine( WindTurbine wt ) {
-		this.windTurbines.add( wt );
+	public void addWindTurbine(WindTurbine wt) {
+		this.windTurbines.add(wt);
 	}
-	
+
 	/**
 	 * Add a photovoltaic panel to the prosumer
-	 * @param pp photovoltaic panel
+	 * 
+	 * @param pp
+	 *            photovoltaic panel
 	 */
-	public void addPhotovoltaicPanel( PhotovoltaicPanel pp ) {
-		this.photovoltaicPanels.add( pp );
+	public void addPhotovoltaicPanel(PhotovoltaicPanel pp) {
+		this.photovoltaicPanels.add(pp);
 	}
-	
+
 	/**
-	 * Calculate the power
+	 * Calculate the power of all renewable energy producers with given weather information
 	 * 
 	 * @param airDensity
 	 * @param windSpeed
 	 * @param solarRadiation
-	 * @return the total power combining of all wind turbines and photovoltaic panels
+	 * @return the total power combining of all wind turbines and photovoltaic
+	 *         panels
 	 */
-	public double powerOutput( double airDensity, double windSpeed, double solarRadiation ) {
+	public double power(double airDensity, double windSpeed, double solarRadiation) {
 		double power = 0;
-		
-		for( WindTurbine wt : this.windTurbines ) {
+
+		for (WindTurbine wt : this.windTurbines) {
 			power = power + wt.powerOutput(airDensity, windSpeed);
 		}
-		for( PhotovoltaicPanel pp : this.photovoltaicPanels ) {
+		for (PhotovoltaicPanel pp : this.photovoltaicPanels) {
 			power = power + pp.powerOutput(solarRadiation);
 		}
-		
-		return power;
+
+		return power * 60;
 	}
-	
-	/** @return id that automatically generate by program to represent a prosumer */
-	public int getID( ) {
+
+	/** @return A id that automatically generate by program to represent a prosumer */
+	public int getID() {
 		return this.id;
 	}
-	
-	/** @return the house number of the prosumer */
-	public int getHouseNumber( ) {
+
+	/** @return The house number of the prosumer */
+	public int getHouseNumber() {
 		return this.houseNumber;
 	}
-	
-	/** @return a array list of wind turbines */
-	public ArrayList<WindTurbine> getWindTurbines( ){
+
+	/** @return A array list of wind turbines */
+	public ArrayList<WindTurbine> getWindTurbines() {
 		return this.windTurbines;
 	}
-	
-	/** @return a array list of photovoltaic panels */
-	public ArrayList<PhotovoltaicPanel> getPhotovoltaicPanels( ){
+
+	/** @return A array list of photovoltaic panels */
+	public ArrayList<PhotovoltaicPanel> getPhotovoltaicPanels() {
 		return this.photovoltaicPanels;
 	}
-	
-	/** @return a string of house number, information of wind turbines, and information of photovoltaic panels */
-	public String info( ) {
+
+	/**
+	 * @return A string of house number, information of wind turbines, and
+	 *         information of photovoltaic panels
+	 */
+	public String info() {
 		String info = "House number: " + this.houseNumber + "\n";
-		for( WindTurbine wt : this.windTurbines ) {
-			info = info + "Wind Turbines:\n";
+		info = info + "Wind Turbines:\n";
+		for (WindTurbine wt : this.windTurbines) {
 			info = info + wt.info();
 		}
-		for( PhotovoltaicPanel pp : this.photovoltaicPanels ) {
-			info = info + "Photovoltaic Panels:\n";
+		info = info + "Photovoltaic Panels:\n";
+		for (PhotovoltaicPanel pp : this.photovoltaicPanels) {
 			info = info + pp.info();
 		}
-		
+
 		return info;
+	}
+
+	// predict production - consumption for next hour
+	private double predictingConsumption(int duration_h ) {
+		1
+		return 0;
+	}
+
+	// net_energy > 0 here
+	private double record(double net_energy, int duration_h) {
+
+		// add new record
+		this.recording.add(net_energy, duration_h);
+
+		if (net_energy < 0) {
+			return net_energy;
+		}
+
+		// predict future net_energy
+		double prediction = predictingConsumption(duration_h);
+
+		double result = net_energy;
+		if (prediction < 0) {
+			if (result - prediction < 0) {
+				this.energy_remaining = result;
+				result = 0;
+			} else {
+				this.energy_remaining = prediction;
+				result = result - prediction;
+			}
+		}
+
+		return result;
+	}
+
+	private double output(double airDensity, double windSpeed, double solarRadiation, int duration_h) {
+
+		// energy production in 1 hour
+		double energy_production = power(airDensity, windSpeed, solarRadiation) * 1 * 60 * 60;
+		double net_energy = energy_production + this.energy_remaining - this.energy_consumption.get(duration_h);
+		this.energy_remaining = 0;
+
+		double result = record(net_energy, duration_h);
+
+		return result;
 	}
 }
