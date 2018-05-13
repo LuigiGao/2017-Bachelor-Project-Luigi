@@ -1,0 +1,23 @@
+[
+	{
+	"houseNumber": "21",
+	"windTurbines": [
+		{ "bladeLength": "5.5", "maxPowerOutput": "5200" }
+	],
+	"photovolaticPanels": [
+		{ "panelArea": "1.65", "maxPowerOutput": "315" }
+	],
+	"consumption": "EnergyConsumption_PaidWork.json"
+	},
+	{
+	"houseNumber": "35",
+	"windTurbines": [
+		{ "bladeLength": "5.5", "maxPowerOutput": "5200" }
+	],
+	"photovolaticPanels": [
+		{ "panelArea": "1.65", "maxPowerOutput": "315" },
+		{ "panelArea": "1.65", "maxPowerOutput": "315" }
+	],
+	"consumption": "EnergyConsumption_PaidWork.json"
+	}
+]
