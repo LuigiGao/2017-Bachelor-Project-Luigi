@@ -1,6 +1,0 @@
-{
-	"connections": [
-		{ "houseNumber1": "21", "houseNumber2": "35", "resistance": "1", "max_load": "10" }
-	],
-	"electric_Utility": "21"
-}
