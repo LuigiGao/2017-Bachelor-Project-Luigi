@@ -61,6 +61,6 @@ public class PhotovoltaicPanel {
 
 	/** @return The string of information of the photovoltaic panel */
 	public String info() {
-		return "Panel Area: " + this.panelArea + "\n";
+		return "Panel Area " + this.panelArea + " m^2\n";
 	}
 }

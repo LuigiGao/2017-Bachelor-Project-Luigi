@@ -33,7 +33,7 @@ public class Test {
 	
 	// find the shortest path correctly
 	public static void testEnergyFlow( ) {
-		NodeNetwork test = new NodeNetwork( prosumer, relation, weather, days);
+		//NodeNetwork test = new NodeNetwork( prosumer, relation, weather, days);
 		
 	}
 	
@@ -57,7 +57,7 @@ public class Test {
 		//test.printNodeInfo();
 		//test.printMaxLoad();
 		//test.printConnection();
-		test.printTopologyStatus();
+		test.printLoadsStatus();
 	}
 	
 }

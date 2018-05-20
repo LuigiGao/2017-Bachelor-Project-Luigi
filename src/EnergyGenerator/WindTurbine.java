@@ -75,7 +75,7 @@ public class WindTurbine {
 
 	/** @return The string of information of the wind turbine */
 	public String info() {
-		return "Blade Length: " + this.bladeLength + ", Swept Area: " + this.bladeSweptArea + "\n";
+		return "Blade Length " + this.bladeLength + " m, Swept Area: " + this.bladeSweptArea + " m^2\n";
 	}
 
 }

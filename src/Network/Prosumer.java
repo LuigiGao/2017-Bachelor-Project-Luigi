@@ -140,9 +140,9 @@ public class Prosumer {
 		for (PhotovoltaicPanel pp : this.photovoltaicPanels) {
 			info = info + pp.info();
 		}
-		System.out.println( "Energy Consumption: ");
+		info = info + "Energy Consumption:\n";
 		for (int i = 0; i < 24; i++ ) {
-			System.out.println( "  at " + i + ": " + this.energy_consumption[i]);
+			info = info + "  at " + i + ": " + this.energy_consumption[i] + "\n";
 		}
 		return info;
 	}

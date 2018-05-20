@@ -14,6 +14,7 @@ import org.json.simple.parser.ParseException;
 import EnergyGenerator.PhotovoltaicPanel;
 import EnergyGenerator.WindTurbine;
 import Parser.TopologyJsonParser;
+import Plan.PlanBalanceCostEnergyLoss;
 import Weather.Weather;
 import Weather.WeatherDatabase;
 
@@ -63,22 +64,29 @@ public class NodeNetwork implements Runnable {
 	 * to/from prosumer
 	 */
 	private int electric_Utility;
+	private double price_Electric_Utility;
 
 	/** provide information of weather */
 	private WeatherDatabase weather_database;
 
 	// in V
-	private final double voltage;
+	private double voltage;
+
+	private double time_interval;
 
 	private int remaining_day;
 
 	private TopologyJsonParser parser;
 
-	// extra/needed energy for all prosumers
+	// extra/needed energy for all prosumers at one hour
+	// +/- number means sell/buy
 	private double[] prosumers_energy;
-
+	private double[] prosumers_price;
+	
 	private ArrayList<Integer> sellers;
 	private ArrayList<Integer> buyers;
+
+	private PlanBalanceCostEnergyLoss plan;
 	
 	/**
 	 * Build a topology which prosumers are nodes, and connections between two
@@ -97,7 +105,9 @@ public class NodeNetwork implements Runnable {
 		this.prosumers = new ArrayList<Prosumer>();
 		this.houseNumber_id = new HashMap<Integer, Integer>();
 		this.voltage = 220;
-
+		this.time_interval = 1;
+		this.plan = new PlanBalanceCostEnergyLoss( this );
+		
 		parser.parseProsumers();
 		initialMatrix();
 		parser.parseRelations();
@@ -290,18 +300,20 @@ public class NodeNetwork implements Runnable {
 			index = p.getID();
 			this.prosumers_energy[index] = p.output(air_density, wind_speed, solar_radiation, hour);
 		}
-		
-		this.buyers = getBuyers( );
-		
+
+		this.buyers = getBuyers();
+
 		// maybe sort the buyers from far to close by distance to electric utility
 		
-		// for each buyer find energy sellers (  prosumer or electric utility )
-		for( int i : buyers ) {
+		
+		// for each buyer find energy sellers ( prosumer or electric utility )
+		for (int i : buyers) {
+			// simulate the energy flow
+			// this.plan.prosumerCost( )
 			
 		}
 
-		// clear matrix for current status for simulation
-		// simulate the current path
+		// clear matrix for current status for next simulation
 
 	}
 
@@ -342,7 +354,7 @@ public class NodeNetwork implements Runnable {
 		}
 		return sellers;
 	}
-
+	
 	public ArrayList<Integer> getNeighbours(int house_id) {
 		ArrayList<Integer> neighbours = new ArrayList<Integer>();
 		int n = this.prosumers.size();
@@ -350,7 +362,8 @@ public class NodeNetwork implements Runnable {
 			// three assumption to check the neighbours
 			// 1. there is connection between house_id and i
 			// 2. there is no energy flow form i to house_id
-			// 3. the energy flow from house_id to i is smaller than the max load between them
+			// 3. the energy flow from house_id to i is smaller than the max load between
+			// them
 			if (this.connections[house_id][i] >= 0 && this.loads_status[i][house_id] == 0
 					&& this.loads_status[house_id][i] < this.max_loads[house_id][i]) {
 				neighbours.add(i);
@@ -386,9 +399,109 @@ public class NodeNetwork implements Runnable {
 		return this.connections[i][j];
 	}
 
-	public int getNumberOfProsumers( ) {
+	public int getNumberOfProsumers() {
 		return this.prosumers.size();
+	}
+
+	public double getVoltage() {
+		return this.voltage;
+	}
+
+	public double getTimeInterval() {
+		return this.time_interval;
+	}
+
+	public double getCapacity(ArrayList<Integer> path) {
+
+		double min_capacity = Double.MAX_VALUE;
+
+		int prosumerA = path.get(0);
+		path.remove(0);
+
+		int prosumerB;
+
+		while (!path.isEmpty()) {
+			prosumerB = path.get(0);
+			path.remove(0);
+
+			if (this.loads_status[prosumerB][prosumerA] == 0) {
+				double capacityAB = this.max_loads[prosumerA][prosumerB] - this.loads_status[prosumerA][prosumerB];
+				if (capacityAB < min_capacity) {
+					min_capacity = capacityAB;
+				}
+			}
+
+			prosumerA = prosumerB;
+		}
+		return min_capacity;
+
+	}
+
+	public double getResistance(ArrayList<Integer> path) {
+
+		double resistance = 0;
+
+		int prosumerA = path.get(0);
+		path.remove(0);
+
+		int prosumerB;
+
+		while (!path.isEmpty()) {
+			prosumerB = path.get(0);
+			path.remove(0);
+
+			resistance = resistance + getResistance(prosumerA, prosumerB);
+
+			prosumerA = prosumerB;
+		}
+		return resistance;
+
+	}
+
+	public void updateCapacity(ArrayList<Integer> path, double rest) {
+		int prosumerA = path.get(0);
+		path.remove(0);
+
+		int prosumerB;
+
+		while (!path.isEmpty()) {
+			prosumerB = path.get(0);
+			path.remove(0);
+
+			this.loads_status[prosumerA][prosumerB] = this.loads_status[prosumerA][prosumerB] + rest; 
+			
+			prosumerA = prosumerB;
+		}
+	}
+
+	public double getCurrentEnergy(int provider) {
+		return this.prosumers_energy[provider];
+	}
+
+	public double getCurrentPrice(int provider) {
+		// return the price of enegry for the provider
+		return 0.8;
+	}
+
+	public double getPriceEC() {
+		return 1;
+	}
+
+	public int getElecticUtility() {
+		return this.electric_Utility;
+	}
+
+	public double calculateEnergyLoss(int electicUtility, int consumer, double energy) {
+		// energy loss from electric utility to consumer when transfer energy
+		return 0;
+	}
+
+	public void transferEnergy(double[] energy_sell) {
+		for( int i = 0; i < this.prosumers_energy.length; i++ ) {
+			this.prosumers_energy[i] = this.prosumers_energy[i] - energy_sell[i];
+		}
 	}
 	
 	
+
 }

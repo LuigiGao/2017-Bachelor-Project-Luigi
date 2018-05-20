@@ -9,7 +9,9 @@ public class Algorithm {
 	protected NodeNetwork graph;
 	
 	// house id with extra energy
-	protected ArrayList<Integer> nodes;
+	protected ArrayList<Integer> nodes_seller;
+	
+	
 	protected int nNodes;
 	
 	// resistance
@@ -29,7 +31,7 @@ public class Algorithm {
 	}
 	
 	protected void initial( int source, int dest ) {
-		this.nodes = graph.getSellers( );
+		this.nodes_seller = graph.getSellers( );
 		//this.relations = graph.getConnections( source );
 		this.source = source;
 		this.dest = dest;
