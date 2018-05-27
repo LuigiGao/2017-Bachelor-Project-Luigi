@@ -1,0 +1,8 @@
+{
+	"connections": [
+		{ "houseNumber1": "0", "houseNumber2": "1", "resistance": "2", "max_load": "2" },
+		{ "houseNumber1": "1", "houseNumber2": "2", "resistance": "3", "max_load": "2" },
+		{ "houseNumber1": "2", "houseNumber2": "0", "resistance": "3", "max_load": "2" }
+	],
+	"electric_Utility": "0"
+}

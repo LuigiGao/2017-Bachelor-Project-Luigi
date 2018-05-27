@@ -4,40 +4,64 @@ import java.util.ArrayList;
 
 import Network.NodeNetwork;
 
-public class Algorithm {
+/**
+ * A template of algorithm which apply to find a path
+ * 
+ * @author Luigi
+ *
+ */
 
+public abstract class Algorithm {
+
+	/** A graph which contains nodes and relations */
 	protected NodeNetwork graph;
 	
-	// house id with extra energy
-	protected ArrayList<Integer> nodes_seller;
-	
-	
+	/** number of nodes */
+	// nNodes = nodes_seller + nodes_consumer
 	protected int nNodes;
 	
-	// resistance
-	//private double[] relations;
-	
-	// the house want to buy energy
+	/** Source where the path start */
+	// the prosumer that sells energy
 	protected int source;
+	
+	/** Destination where the path end */
+	// the prosumer that want to buy energy
 	protected int dest;
 	
-	
-	// only store the shortest path
-	//private ArrayList<Integer> path;
-	
-	
+	/**
+	 * Build the algorithm
+	 * @param graph
+	 */
 	public Algorithm( NodeNetwork graph ) {
 		this.graph = graph;
-	}
-	
-	protected void initial( int source, int dest ) {
-		this.nodes_seller = graph.getSellers( );
-		//this.relations = graph.getConnections( source );
-		this.source = source;
-		this.dest = dest;
-		//this.path = new ArrayList<Integer>( );
 		this.nNodes = this.graph.getNumberOfProsumers( );
 	}
 	
+	/**
+	 * Initial the variables for finding path using same algorithm
+	 * @param source
+	 * @param dest
+	 */
+	protected void initial( int source, int dest ) {
+		this.source = source;
+		this.dest = dest;
+	}
+	
+	/**
+	 * Find a path from source to dest
+	 * @param source
+	 * @param dest
+	 * @return A array of integer indicates the path
+	 */
+	public abstract ArrayList<Integer> findPath(int source, int dest);
+
+	/**
+	 * Find a path from source to dest with given loads
+	 * @param source
+	 * @param dest
+	 * @param loads
+	 * @return A array of integer indicates the path
+	 */
+	public abstract ArrayList<Integer> findPath(int source, int dest, double[][] loads);
 	
 }

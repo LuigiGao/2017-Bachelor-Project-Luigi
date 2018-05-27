@@ -1,20 +1,28 @@
 package Weather;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Scanner;
-
 import Parser.WeatherTxtParser;
 
+/**
+ * A database stores weathers' information
+ * 
+ * @author Luigi
+ *
+ */
 public class WeatherDatabase {
 
 	/** A array of weather information */
 	private ArrayList<Weather> weathers;
 
+	/** Parser that read and store the weather from txt file */
 	private WeatherTxtParser parser;
+
+	/** Count for index of next weather */
+	private int count;
 	
+	/** Size of array of weathers */
+	private int size;
+
 	/**
 	 * Parse the file and store weathers
 	 * 
@@ -24,14 +32,23 @@ public class WeatherDatabase {
 	public WeatherDatabase(String weather_infos) {
 
 		this.weathers = new ArrayList<Weather>();
-		this.parser = new WeatherTxtParser( this, weather_infos );
-		
-		this.parser.parse( );
+		this.count = 0;
 
+		// read and store the information of weathers
+		this.parser = new WeatherTxtParser(this, weather_infos);
+		this.parser.parse();
+
+		this.size = this.weathers.size();
 	}
-	
-	public void addWeather( Weather weather ) {
-		this.weathers.add( weather );
+
+	/**
+	 * Add one weather into this database
+	 * 
+	 * @param weather
+	 *            A collection of weather data of one day
+	 */
+	public void addWeather(Weather weather) {
+		this.weathers.add(weather);
 	}
 
 	/**
@@ -40,8 +57,12 @@ public class WeatherDatabase {
 	 * @return The first Weather in old array
 	 */
 	public Weather nextWeather() {
-		Weather weather = this.weathers.get(0);
-		this.weathers.remove(0);
+		// repeatedly use the weathers if need more
+		if (this.count >= this.size) {
+			this.count = 0;
+		}
+		Weather weather = this.weathers.get(count);
+		this.count++;
 		return weather;
 	}
 

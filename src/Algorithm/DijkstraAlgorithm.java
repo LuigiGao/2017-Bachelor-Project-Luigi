@@ -4,22 +4,38 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import Network.NodeNetwork;
+import Plan.PlanBalanceCostEnergyLoss;
+
+/**
+ * A class that implements Dijkstra Algorithm to find path between two nodes
+ * 
+ * @author Luigi
+ *
+ */
 
 public class DijkstraAlgorithm extends Algorithm {
 
-	// sum of resistance of path
-	// private double minDistance;
-
+	/** A array indicates whether the node is visited */
 	// visited[i] = 0 means node i is not visited
 	private int[] visited;
 
+	/** A array contains the distance of all nodes to the source node */
 	private double[] distances;
+	
+	/** A array contains the previous node for each node */
+	// previous[1] = 2 means the previous node of node1 is node2
 	private Integer[] previous;
-
+	
+	/**
+	 * Build the algorithm
+	 * @param graph
+	 * @param plan
+	 */
 	public DijkstraAlgorithm(NodeNetwork graph) {
 		super(graph);
 	}
 
+	@Override
 	protected void initial(int source, int dest) {
 		super.initial(source, dest);
 		this.visited = new int[this.nNodes];
@@ -35,6 +51,10 @@ public class DijkstraAlgorithm extends Algorithm {
 
 	}
 
+	/**
+	 * Find the unvisited node with minimum distance
+	 * @return A integer represents node
+	 */
 	private int findUnvisitedMinNode() {
 		int node = -1;
 		double distance = Double.POSITIVE_INFINITY;
@@ -55,22 +75,40 @@ public class DijkstraAlgorithm extends Algorithm {
 		return node;
 	}
 
-	public ArrayList<Integer> findShortestPath(int source, int dest) {
+	private ArrayList<Integer> createPath( ){
+		ArrayList<Integer> path = new ArrayList<Integer>();
+		path.add( this.dest );
+		Integer p = this.previous[this.dest];
+		//System.out.println( "Algorithm: find previous prosumer " + p );
+		while (p != null) {
+			path.add(p);
+			p = this.previous[p];
+		}
+		
+		// reverse the array from <1,2,4> to <4,2,1> means energy flow 4 -> 2 -> 1
+		Collections.reverse(path);
+		
+		return path;
+	}
+	
+	@Override
+	public ArrayList<Integer> findPath(int source, int dest) {
 
 		// initial the variables
 		initial(source, dest);
 
-		// find closest path to des
+		// find closest path from source to dest
 		for( int i = 0; i < this.nNodes; i++ ) {
 			int node = findUnvisitedMinNode();
-			// node = this.dest means find closest path
-			// node = -1 means unreachable
+			
+			// node = this.dest means find closest path and node = -1 means unreachable
 			if (node == this.dest || node == -1)
 				break;
 
 			ArrayList<Integer> neighbours = this.graph.getNeighbours(node);
 
 			for (int adj : neighbours) {
+				//System.out.println( "Algorithm: Find resistance between house " + node + " with house " + adj );
 				double distance = this.distances[node] + this.graph.getResistance(node, adj);
 				if (distance < this.distances[adj]) {
 					this.distances[adj] = distance;
@@ -78,23 +116,37 @@ public class DijkstraAlgorithm extends Algorithm {
 				}
 			}
 		}
-
-		ArrayList<Integer> path = new ArrayList<Integer>();
-		Integer p = this.previous[this.dest];
-		while (p != null) {
-			path.add(p);
-			p = this.previous[p];
-		}
-
-		/*
-		// reverse the array from <1,2,4> to <4,2,1> means energy flow 4 -> 2 -> 1
-		if( path.size() > 0 )
-			Collections.reverse(path);
-		*/
-
-		// if not reachable, return null
-		// otherwise return a a arrayList
-		return path;
+		
+		return createPath( );
 	}
 
+	@Override
+	public ArrayList<Integer> findPath(int source, int dest, double[][] loads) {
+
+		// initial the variables
+		initial(source, dest);
+
+		// find closest path from source to dest
+		for( int i = 0; i < this.nNodes; i++ ) {
+			int node = findUnvisitedMinNode();
+			
+			// node = this.dest means find closest path and node = -1 means unreachable
+			if (node == this.dest || node == -1)
+				break;
+
+			ArrayList<Integer> neighbours = this.graph.getNeighbours(node, loads);
+
+			for (int adj : neighbours) {
+				//System.out.println( "Algorithm: Find resistance between house " + node + " with house " + adj );
+				double distance = this.distances[node] + this.graph.getResistance(node, adj);
+				if (distance < this.distances[adj]) {
+					this.distances[adj] = distance;
+					this.previous[adj] = node;
+				}
+			}
+		}
+		
+		return createPath( );
+	}
+	
 }

@@ -11,7 +11,7 @@ Both Json and txt files are used to store the data used when processing program.
 		and a location of file that contains the data of energy consumption.
 
 3. Relation_*.json: Store relation between all prosumers defined in "Prosumers.json".
-		A list of connections includes resistance( in R ) and max load( in J ) 
+		A list of connections includes resistance( in R ) and max load( in kWh ) 
 		between two house with specified number. 
 		A house number for electric utility.
 		

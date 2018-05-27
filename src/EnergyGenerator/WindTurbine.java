@@ -1,4 +1,5 @@
 package EnergyGenerator;
+
 import java.util.Random;
 
 /**
@@ -29,7 +30,7 @@ public class WindTurbine {
 	private double efficiency;
 
 	/**
-	 * Maximum power of the wind turbine unit: Watt
+	 * Maximum power of the wind turbine (in Watt)
 	 */
 	private double maxPowerOutput;
 
@@ -43,8 +44,8 @@ public class WindTurbine {
 	 */
 	public WindTurbine(double bladeLength, double maxPowerOutput) {
 		this.bladeLength = bladeLength;
-		this.bladeSweptArea = Math.PI * Math.pow(this.bladeLength/2, 2);
-		this.efficiency = 1; //(new Random()).nextDouble();
+		this.bladeSweptArea = Math.PI * Math.pow(this.bladeLength / 2, 2);
+		this.efficiency = 1; // (new Random()).nextDouble();
 		this.maxPowerOutput = maxPowerOutput;
 	}
 
@@ -52,14 +53,14 @@ public class WindTurbine {
 	 * Calculate the power of this wind turbine with given air density and wind
 	 * speed
 	 * 
-	 * @param airDensity
-	 * @param windSpeed
-	 * @return the power of the wind turbines
+	 * @param airDensity (in 1kg/m^3)
+	 * @param windSpeed (in 0.1m/s)
+	 * @return The power of the wind turbines (in 1W)
 	 */
 	public double powerOutput(double airDensity, double windSpeed) {
 
-		double power = 0.5 * this.bladeSweptArea * airDensity * Math.pow(windSpeed, 3) * this.efficiency;
-		
+		double power = 0.5 * this.bladeSweptArea * airDensity * Math.pow(windSpeed/10, 3) * this.efficiency;
+
 		return Math.min(power, this.maxPowerOutput);
 	}
 

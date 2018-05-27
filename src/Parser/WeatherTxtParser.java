@@ -8,6 +8,13 @@ import java.util.Scanner;
 import Weather.Weather;
 import Weather.WeatherDatabase;
 
+/**
+ * A parser that write weather to the weather database
+ * 
+ * @author Luigi
+ *
+ */
+
 public class WeatherTxtParser {
 
 	/** A text scanner contains information of weathers */
@@ -15,31 +22,36 @@ public class WeatherTxtParser {
 
 	/** A string contains information of weather of a particular date */
 	private String weather_info;
-	
+
+	/** Database that stores weather */
 	private WeatherDatabase database;
-	
-	public WeatherTxtParser( WeatherDatabase database, String weather_infos ) {
-		
+
+	/**
+	 * Build the parser
+	 * 
+	 * @param database
+	 * @param weather_infos
+	 */
+	public WeatherTxtParser(WeatherDatabase database, String weather_infos) {
+
 		this.database = database;
-		
+
 		try {
 			this.weather_resource = new Scanner(new File(weather_infos));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	/**
-	 * Ignore the comments and parse the weather information line by line
+	 * Parse the weather information line by line
 	 */
 	public void parse() {
 
-		parseComments( );
+		parseComments();
 		
-		// System.out.println( this.weather_info );
-
 		// parse first weather information
 		parseWeather();
 
@@ -51,35 +63,38 @@ public class WeatherTxtParser {
 
 	}
 
-	private void parseComments( ) {
-		
+	/**
+	 * Ignore the comments
+	 */
+	private void parseComments() {
+
 		this.weather_info = this.weather_resource.nextLine();
-		
+
 		// strategy to parse explanation of sources and variables
-		while ( this.weather_info.isEmpty() || this.weather_info.charAt(0) != '#') {
-			//System.out.println( this.weather_info );
+		while (this.weather_info.isEmpty() || this.weather_info.charAt(0) != '#') {
+			// System.out.println( this.weather_info );
 			this.weather_info = this.weather_resource.nextLine();
 		}
-		
-		// strategy to parse comments with '#' and the empty dividing line 
-		while ( this.weather_info.isEmpty() || this.weather_info.charAt(0) == '#') {
+
+		// strategy to parse comments with '#' and the empty dividing line
+		while (this.weather_info.isEmpty() || this.weather_info.charAt(0) == '#') {
 			this.weather_info = this.weather_resource.nextLine();
 		}
-		
+
 		// following text is weather data
-		
+
 	}
-	
+
 	/**
 	 * Build one Weather and store it into array
 	 */
-	// more information may added to improve the weather, for example the mean wind
-	// speed etc..
 	private void parseWeather() {
 
+		// more information could be added to improve the weather, for example the mean wind
+		// speed etc..
 		double FHX = 0, FHN = 0, SP = 0, Q = 0;
 		Date date;
-		
+
 		// parse the stn prefix
 		parseDouble();
 
@@ -87,18 +102,18 @@ public class WeatherTxtParser {
 		date = parseDate();
 
 		// parse other information
-		parseDoubles( 3 );
+		parseDoubles(3);
 		FHX = parseDouble();
-		
-		parseDoubles( 1 );
+
+		parseDoubles(1);
 		FHN = parseDouble();
-		
-		parseDoubles( 11 );
+
+		parseDoubles(11);
 		SP = parseDouble();
-		
+
 		Q = parseDouble();
 
-		this.database.addWeather( new Weather(date, FHX, FHN, Q, SP) );
+		this.database.addWeather(new Weather(date, FHX, FHN, Q, SP));
 	}
 
 	/**
@@ -114,8 +129,6 @@ public class WeatherTxtParser {
 
 		// parse ','
 		parseDouble();
-		
-		// System.out.println( year + " " + month + " " + day );
 
 		return new Date(year, month, day);
 	}
@@ -163,15 +176,15 @@ public class WeatherTxtParser {
 		return n;
 	}
 
-	// parse next n double
-	private void parseDoubles( int n ) {
-		
-		for( int i = 0; i < n; i++ ) {
-			parseDouble( );
+	/** parse(ignore) the next n doubles */
+	private void parseDoubles(int n) {
+
+		for (int i = 0; i < n; i++) {
+			parseDouble();
 		}
-		
+
 	}
-	
+
 	/**
 	 * Parse first int with length n
 	 * 
@@ -191,5 +204,5 @@ public class WeatherTxtParser {
 
 		return out;
 	}
-	
+
 }

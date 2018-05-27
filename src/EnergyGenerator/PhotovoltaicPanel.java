@@ -45,13 +45,14 @@ public class PhotovoltaicPanel {
 	 * Calculate the power of this photovoltaic panel with given solar radiation
 	 * 
 	 * @param solarRadiation
-	 * @return the power of the photovoltaic panel
+	 * @return The power of the photovoltaic panel in 1W
 	 */
 	public double powerOutput(double solarRadiation) {
 
-		double power = this.panelArea * solarRadiation * efficiency;
+		// panelArea unit m^2 to cm^2
+		double joule = this.panelArea * 10000 * solarRadiation * efficiency;
 
-		return Math.min(power, this.maxPowerOutput);
+		return Math.min(joule/3600, this.maxPowerOutput);
 	}
 
 	/** @return The panel area of the photovoltaic panel */
