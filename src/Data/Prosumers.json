@@ -1,129 +1,17 @@
-[
-	{
-	"houseNumber": "21",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-	],
-	"consumption": "EnergyConsumption_Unemployed.json"
-	},
-	{
-	"houseNumber": "22",
-	"windTurbines": [
-		{ "bladeLength": "5.5", "maxPowerOutput": "5200" }
-	],
-	"photovolaticPanels": [
-	],
-	"consumption": "EnergyConsumption_Retired.json"
-	},
-	{
-	"houseNumber": "23",
-	"windTurbines": [
-		{ "bladeLength": "5.5", "maxPowerOutput": "5200" }
-		{ "bladeLength": "5.5", "maxPowerOutput": "5200" }
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" },
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_Relative.json"
-	},
-	{
-	"houseNumber": "24",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_Retired.json"
-	},
-	{
-	"houseNumber": "25",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" },
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_PaidWork.json"
-	},
-	{
-	"houseNumber": "26",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" },
-		{ "panelArea": "1.65", "maxPowerOutput": "315" },
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_PaidWork.json"
-	},
-	{
-	"houseNumber": "27",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" },
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_PaidWork.json"
-	},
-	{
-	"houseNumber": "28",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-	],
-	"consumption": "EnergyConsumption_PaidWork.json"
-	},
-	{
-	"houseNumber": "29",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" },
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_Unemployed.json"
-	},
-	{
-	"houseNumber": "30",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" },
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_Relative.json"
-	},
-	{
-	"houseNumber": "31",
-	"windTurbines": [
-		{ "bladeLength": "5.5", "maxPowerOutput": "5200" }
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_Unemployed.json"
-	},
-	{
-	"houseNumber": "32",
-	"windTurbines": [
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" },
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_Retired.json"
-	},
-	{
-	"houseNumber": "33",
-	"windTurbines": [
-		{ "bladeLength": "5.5", "maxPowerOutput": "5200" }
-	],
-	"photovolaticPanels": [
-		{ "panelArea": "1.65", "maxPowerOutput": "315" }
-	],
-	"consumption": "EnergyConsumption_PaidWork.json"
-	}
-]
+{
+	"householders": [
+		"Oliver",
+		"Jack",
+		"Harry",
+		"Jacob",
+		"Charlie",
+		"Thomas",
+		"George",
+		"Oscar",
+		"James",
+		"William",
+		"Jake",
+		"Connor",
+		"Joe"
+	]
+}

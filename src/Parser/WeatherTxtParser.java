@@ -92,7 +92,7 @@ public class WeatherTxtParser {
 
 		// more information could be added to improve the weather, for example the mean wind
 		// speed etc..
-		double FHX = 0, FHN = 0, SP = 0, Q = 0;
+		double FHX = 0, FHN = 0, TN = 0, TX = 0, SQ = 0, Q = 0;
 		Date date;
 
 		// parse the stn prefix
@@ -101,19 +101,26 @@ public class WeatherTxtParser {
 		// parse year/month/day
 		date = parseDate();
 
-		// parse other information
 		parseDoubles(3);
 		FHX = parseDouble();
 
 		parseDoubles(1);
 		FHN = parseDouble();
 
-		parseDoubles(11);
-		SP = parseDouble();
 
+		parseDoubles(4);
+		TN = parseDouble();
+
+		parseDoubles(1);
+		TX = parseDouble();
+		
+		parseDoubles(3);
+		SQ = parseDouble();
+
+		parseDoubles(1);
 		Q = parseDouble();
 
-		this.database.addWeather(new Weather(date, FHX, FHN, Q, SP));
+		this.database.addWeather(new Weather(date, FHX, FHN, TN, TX, Q, SQ));
 	}
 
 	/**
@@ -152,7 +159,6 @@ public class WeatherTxtParser {
 
 					if (dot_count == 0) {
 						n = n * 10 + this.weather_info.charAt(i) - '0';
-						// System.out.println( n );
 					} else {
 						f = 0.1 * f;
 						n = n + f * (this.weather_info.charAt(i) - '0');

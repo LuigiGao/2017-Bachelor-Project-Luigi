@@ -2,7 +2,7 @@ package Algorithm;
 
 import java.util.ArrayList;
 
-import Network.NodeNetwork;
+import Network.Network;
 
 /**
  * A template of algorithm which apply to find a path
@@ -14,7 +14,7 @@ import Network.NodeNetwork;
 public abstract class Algorithm {
 
 	/** A graph which contains nodes and relations */
-	protected NodeNetwork graph;
+	protected Network graph;
 	
 	/** number of nodes */
 	// nNodes = nodes_seller + nodes_consumer
@@ -32,7 +32,7 @@ public abstract class Algorithm {
 	 * Build the algorithm
 	 * @param graph
 	 */
-	public Algorithm( NodeNetwork graph ) {
+	public Algorithm( Network graph ) {
 		this.graph = graph;
 		this.nNodes = this.graph.getNumberOfProsumers( );
 	}

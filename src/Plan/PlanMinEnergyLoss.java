@@ -2,23 +2,34 @@ package Plan;
 
 import java.util.ArrayList;
 
-import Algorithm.DijkstraAlgorithm;
-import Network.NodeNetwork;
+import Algorithm.*;
+import Network.Network;
 import javafx.util.Pair;
 
-// this plan only find the min energy loss at current status which means only consider one consumer not all consumers
+/**
+ * A plan manages the energy flow for minimizing energy loss.
+ * But this plan only manager the energy flow due to current status 
+ * which means only consider the energy loss for one consumer not all consumers
+ * 
+ * @author Luigi
+ *
+ */
 
 public class PlanMinEnergyLoss extends Plan {
 
-	private DijkstraAlgorithm algorithm;
+	/** A array of prosumer id that energy pass in order */
 	private ArrayList<Integer> path;
+	
+	/** Minimum resistance of paths in 1 ohm */
 	private double minResis;
 
-	public PlanMinEnergyLoss(NodeNetwork network) {
+	/** Build the plan for minimizing energy loss */
+	public PlanMinEnergyLoss(Network network) {
 		super(network);
 		this.algorithm = new DijkstraAlgorithm(network);
 	}
 
+	/** Find the provider which have the least energy loss */
 	private void findMinLossProvider(int consumer) {
 
 		ArrayList<Integer> providers = this.network.getProviders();
@@ -33,9 +44,9 @@ public class PlanMinEnergyLoss extends Plan {
 				}
 			}
 		}
-
 	}
 
+	/** Plan energy required by the consumer from providers */
 	private void findProviders(int consumer, double energy_require) {
 		this.rest = energy_require;
 

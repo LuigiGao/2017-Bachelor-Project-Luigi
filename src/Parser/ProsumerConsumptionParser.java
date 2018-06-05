@@ -11,7 +11,7 @@ import org.json.simple.parser.ParseException;
 import Network.Prosumer;
 
 /**
- * Parser that parse the electric consumption information for one prosumer
+ * Parser that read the electric consumption information for one prosumer
  * 
  * @author Luigi
  *

@@ -1,0 +1,17 @@
+{
+	"connections": [
+		{ "houseNumber1": "0", "houseNumber2": "1" },
+		{ "houseNumber1": "0", "houseNumber2": "2" },
+		{ "houseNumber1": "0", "houseNumber2": "3" },
+		{ "houseNumber1": "0", "houseNumber2": "4" },
+		{ "houseNumber1": "0", "houseNumber2": "5" },
+		{ "houseNumber1": "0", "houseNumber2": "6" },
+		{ "houseNumber1": "0", "houseNumber2": "7" },
+		{ "houseNumber1": "0", "houseNumber2": "8" },
+		{ "houseNumber1": "0", "houseNumber2": "9" },
+		{ "houseNumber1": "0", "houseNumber2": "10" },
+		{ "houseNumber1": "0", "houseNumber2": "11" },
+		{ "houseNumber1": "0", "houseNumber2": "12" }
+	],
+	"electric_Utility": "0"
+}

@@ -3,7 +3,7 @@ package Plan;
 import java.util.ArrayList;
 
 import Algorithm.Algorithm;
-import Network.NodeNetwork;
+import Network.Network;
 
 /**
  * A template of plan to manage the flow of energy between prosumers
@@ -13,9 +13,9 @@ import Network.NodeNetwork;
  */
 
 public abstract class Plan {
-
+	
 	/** Graph with nodes and relation information */
-	protected NodeNetwork network;
+	protected Network network;
 
 	/** Number of prosumers */
 	protected int nProsumer;
@@ -23,39 +23,34 @@ public abstract class Plan {
 	/** Algorithm used to find path between two prosumers */
 	protected Algorithm algorithm;
 
-	/** The rest energy need by prosumer */
+	/** The rest energy need by prosumer in 1 kWh */
 	protected double rest;
 
 	/**
 	 * Build the plan
-	 * 
-	 * @param network
+	 * @param network Network simulate smart grid
 	 */
-	public Plan(NodeNetwork network) {
+	public Plan(Network network) {
 
 		this.network = network;
 		this.nProsumer = this.network.getNumberOfProsumers();
 
 	}
 
-	/**
-	 * Initial variables for plan
-	 */
+	/** Initial variables for plan */
 	protected abstract void initial();
 
 	/**
 	 * Give a plan for transfering energy_require to consumer
-	 * 
-	 * @param consumer
-	 * @param energy_require
+	 * @param consumer Prosumer id
+	 * @param energy_require Energy required by the prosumer in 1 kWh
 	 */
 	public abstract void plan(int consumer, double energy_require);
 	
 	/**
 	 * Find index of minimum positive value in the array
-	 * 
 	 * @param array
-	 * @return An integer
+	 * @return Index of minimum positive value in the array
 	 */
 	protected int findPosMin(double[] array) {
 		double min = Double.MAX_VALUE;

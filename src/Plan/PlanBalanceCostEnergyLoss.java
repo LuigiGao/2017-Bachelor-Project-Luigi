@@ -2,18 +2,19 @@ package Plan;
 
 /**
  * A plan combining both energy loss and cost together to manage energy flows
+ * The energy and load first copy from Network, then be changed when the plan
+ * starts to find paths
+ * The energy and load in Network should be changed after all paths are found,
+ * sorted, and taken
  */
 
 import java.util.ArrayList;
 
-import Algorithm.DijkstraAlgorithm;
-import Network.NodeNetwork;
+import Algorithm.*;
+import Network.Network;
 import javafx.util.Pair;
 
 public class PlanBalanceCostEnergyLoss extends Plan {
-
-	/** Algorithm used to find path */
-	private DijkstraAlgorithm algorithm;
 
 	/** A array of percentage of energy loss for each provider */
 	private double[] loss_percent;
@@ -29,10 +30,6 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 	 */
 	private Flows[] flows;
 
-	// The energy and load first copy from Network, then be changed when the plan
-	// starts to find paths;
-	// The energy and load in Network should be changed after all paths are found,
-	// sorted, and taken
 	/** Remaining energy for each provider when simulate in this plan */
 	private double[] energy_simulation;
 
@@ -41,10 +38,9 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 
 	/**
 	 * Build the plan
-	 * 
 	 * @param network
 	 */
-	public PlanBalanceCostEnergyLoss(NodeNetwork network) {
+	public PlanBalanceCostEnergyLoss(Network network) {
 
 		super(network);
 		this.algorithm = new DijkstraAlgorithm(this.network);
@@ -59,7 +55,7 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 	/**
 	 * @param prosumerA
 	 * @param prosumerB
-	 * @return The load between two prosumers in plan's simulation
+	 * @return The load between two prosumers in plan's simulation in 1 kWh
 	 */
 	public double getLoad(int prosumerA, int prosumerB) {
 		return this.loads_simulation[prosumerA][prosumerB];
@@ -67,24 +63,22 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 
 	/**
 	 * Add load energy between prosumerA and prosumerB to the plan's simulation
-	 * 
 	 * @param prosumerA
 	 * @param prosumerB
-	 * @param energy
+	 * @param energy Energy in 1 kWh
 	 */
 	public void addLoad(int prosumerA, int prosumerB, double energy) {
 		this.loads_simulation[prosumerA][prosumerB] = this.loads_simulation[prosumerA][prosumerB] + energy;
 	}
 
 	/**
-	 * 
-	 * @param consumer
+	 * @param consumer Id of prosumer
 	 * @return A array of possible provider to the consumer
 	 */
 	public ArrayList<Integer> getNeighbours(int consumer) {
 		ArrayList<Integer> neighbours = new ArrayList<Integer>();
 		for (int i = 0; i < this.nProsumer; i++) {
-			if (this.network.getConnection(consumer, i) >= 0 && this.loads_simulation[i][consumer] == 0
+			if (this.network.getResistance(consumer, i) >= 0 && this.loads_simulation[i][consumer] == 0
 					&& this.loads_simulation[consumer][i] < this.network.getMaxLoad(consumer, i)) {
 				neighbours.add(i);
 			}
@@ -93,9 +87,8 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 	}
 
 	/**
-	 * 
 	 * @param path
-	 * @return The maximum capacity of the path
+	 * @return The maximum capacity of the path in kWh for 1 hour
 	 */
 	public double getCapacity(ArrayList<Integer> path) {
 
@@ -123,16 +116,16 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 			prosumerA = prosumerB;
 			index++;
 		}
-		return Math.min(min_capacity, this.energy_simulation[source]);
+		return Math.min(min_capacity, this.energy_simulation[source]) * 1;
 	}
 
-	// simulation in plan, not real energy transfer
 	/**
-	 * Simulate the path in the plan
+	 * Simulate the path with energy transmit in the plan
 	 * 
-	 * @param path
-	 * @param energy
+	 * @param path A array of prosumers that energy pass in order
+	 * @param energy Energy transmit in 1 kWh
 	 */
+	// simulation in plan, not real energy transfer
 	private void simulatePath(ArrayList<Integer> path, double energy) {
 		if (path.size() <= 1) {
 			return;
@@ -155,8 +148,8 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 	 * 
 	 * @param source
 	 * @param dest
-	 * @param energy_sell
-	 * @return A combination of path
+	 * @param energy_sell Energy that source has in 1 kWh
+	 * @return Flows that transfer energy_sell or maximum energy can be transfered
 	 */
 	private Flows planEnergyFlow(int source, int dest, double energy_sell) {
 		// this rest is remaining energy that source have
@@ -191,8 +184,8 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 	 * Choose providers that support energy to consumer and simulate the energy
 	 * flowss
 	 * 
-	 * @param consumer
-	 * @param energy_require
+	 * @param consumer Prosumer id
+	 * @param energy_require Energy in 1 kWh
 	 */
 	private void manageProviders(int consumer, double energy_require) {
 
@@ -208,14 +201,13 @@ public class PlanBalanceCostEnergyLoss extends Plan {
 				// whether there is a flow in flows
 				if (flows_provider.exist()) {
 					this.flows[provider] = flows_provider;
-					this.loss_percent[provider] = flows_provider.getEnergyLossPercentage(this.network.getVoltage(),
-							this.network.getTimeInterval());
+					this.loss_percent[provider] = flows_provider.getEnergyLossPercentage(this.network.getVoltage(), 1);
+					// price of buying energy from all provider is estimated now
 					this.estimate[provider] = energy_require
 							* (1 + this.loss_percent[provider] * this.network.getProsumerPrice(provider));
 				}
 			}
 		}
-		// price of buying energy from all provider is estimated now
 
 		this.rest = energy_require;
 

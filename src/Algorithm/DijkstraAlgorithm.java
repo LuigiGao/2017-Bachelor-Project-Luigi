@@ -3,7 +3,7 @@ package Algorithm;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import Network.NodeNetwork;
+import Network.Network;
 import Plan.PlanBalanceCostEnergyLoss;
 
 /**
@@ -31,7 +31,7 @@ public class DijkstraAlgorithm extends Algorithm {
 	 * @param graph
 	 * @param plan
 	 */
-	public DijkstraAlgorithm(NodeNetwork graph) {
+	public DijkstraAlgorithm(Network graph) {
 		super(graph);
 	}
 
@@ -75,11 +75,14 @@ public class DijkstraAlgorithm extends Algorithm {
 		return node;
 	}
 
+	/**
+	 * Create a path from source to dest
+	 * @return A array of prosumer's id as path
+	 */
 	private ArrayList<Integer> createPath( ){
 		ArrayList<Integer> path = new ArrayList<Integer>();
 		path.add( this.dest );
 		Integer p = this.previous[this.dest];
-		//System.out.println( "Algorithm: find previous prosumer " + p );
 		while (p != null) {
 			path.add(p);
 			p = this.previous[p];
@@ -108,7 +111,6 @@ public class DijkstraAlgorithm extends Algorithm {
 			ArrayList<Integer> neighbours = this.graph.getNeighbours(node);
 
 			for (int adj : neighbours) {
-				//System.out.println( "Algorithm: Find resistance between house " + node + " with house " + adj );
 				double distance = this.distances[node] + this.graph.getResistance(node, adj);
 				if (distance < this.distances[adj]) {
 					this.distances[adj] = distance;
@@ -137,7 +139,6 @@ public class DijkstraAlgorithm extends Algorithm {
 			ArrayList<Integer> neighbours = this.graph.getNeighbours(node, loads);
 
 			for (int adj : neighbours) {
-				//System.out.println( "Algorithm: Find resistance between house " + node + " with house " + adj );
 				double distance = this.distances[node] + this.graph.getResistance(node, adj);
 				if (distance < this.distances[adj]) {
 					this.distances[adj] = distance;

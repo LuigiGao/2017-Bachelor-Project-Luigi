@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import Parser.WeatherTxtParser;
 
 /**
- * A database stores weathers' information
+ * A database manage and stores weathers' information
  * 
  * @author Luigi
  *
@@ -14,20 +14,17 @@ public class WeatherDatabase {
 	/** A array of weather information */
 	private ArrayList<Weather> weathers;
 
-	/** Parser that read and store the weather from txt file */
-	private WeatherTxtParser parser;
-
 	/** Count for index of next weather */
 	private int count;
-	
+
 	/** Size of array of weathers */
 	private int size;
 
 	/**
-	 * Parse the file and store weathers
+	 * Build the database based on input file
 	 * 
 	 * @param weather_infos
-	 *            Path of a file that contain information of weathers
+	 *            Path of a file that stores information of weathers
 	 */
 	public WeatherDatabase(String weather_infos) {
 
@@ -35,8 +32,8 @@ public class WeatherDatabase {
 		this.count = 0;
 
 		// read and store the information of weathers
-		this.parser = new WeatherTxtParser(this, weather_infos);
-		this.parser.parse();
+		WeatherTxtParser parser = new WeatherTxtParser(this, weather_infos);
+		parser.parse();
 
 		this.size = this.weathers.size();
 	}
@@ -45,16 +42,16 @@ public class WeatherDatabase {
 	 * Add one weather into this database
 	 * 
 	 * @param weather
-	 *            A collection of weather data of one day
+	 *            Weather data
 	 */
 	public void addWeather(Weather weather) {
 		this.weathers.add(weather);
 	}
 
 	/**
-	 * Remove the first Weather in array
+	 * Extract next Weather
 	 * 
-	 * @return The first Weather in old array
+	 * @return Weather
 	 */
 	public Weather nextWeather() {
 		// repeatedly use the weathers if need more
@@ -67,22 +64,23 @@ public class WeatherDatabase {
 	}
 
 	/**
-	 * Print information (min/max wind speed, global radiation, etc..) of all
-	 * weathers in this database
+	 * Display real data (min/max wind speed, global radiation, etc..) of all
+	 * weathers
 	 */
-	public void info() {
+	public void realData() {
 		for (Weather w : this.weathers) {
-			System.out.println(w.info());
+			System.out.println(w.realData());
 		}
 	}
 
 	/**
-	 * Print prediction (hourly wind speed, and solar radiation) of all Weathers in
+	 * Display a prediction (hourly wind speed, and solar radiation, etc..) of all Weathers in
 	 * this database
 	 */
 	public void prediction() {
 		for (Weather w : this.weathers) {
-			w.prediction();
+			for (int i = 0; i < 24; i++)
+				System.out.println(w.prediction(i));
 		}
 	}
 

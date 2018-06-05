@@ -3,13 +3,18 @@ package Network;
 import java.util.ArrayList;
 import java.util.Random;
 
-import EnergyGenerator.PhotovoltaicPanel;
-import EnergyGenerator.WindTurbine;
 import Parser.ProsumerConsumptionParser;
+import PhotovoltaicPanel.*;
+import WindTurbine.*;
 
 /**
  * This class contains information about one prosumer, is used to simulate the
  * energy production and consumption of that prosumer
+ * 
+ * Resource:
+ * https://en.wikipedia.org/wiki/Wind_power_in_the_Netherlands
+ * Electricity consumption and household characteristics: Implications for census-taking in a smart metered future
+ * https://www.cbs.nl/en-gb/news/2017/22/share-of-renewable-energy-at-5-9-in-2016
  * 
  * @author Luigi
  *
@@ -17,12 +22,12 @@ import Parser.ProsumerConsumptionParser;
 
 public class Prosumer {
 
-	/** A number that automatically generate by program to represent a prosumer */
+	/** A number that automatically generate by program to represent the prosumer */
 	// which is also the index of column and row
 	private int id;
 
-	/** House number of the prosumer */
-	private int houseNumber;
+	/** Prosumer's name */
+	private String householder;
 
 	/** A array of wind turbines */
 	private ArrayList<WindTurbine> windTurbines;
@@ -30,44 +35,89 @@ public class Prosumer {
 	/** A array of photovoltaic panels */
 	private ArrayList<PhotovoltaicPanel> photovoltaicPanels;
 
-	// extra
-	// add a storage
-	// private ArrayList<Double> recording;
-	// private double energy_remaining;
-	// private double[] previous_energy;
-
-	/** A array list of daily consumption of energy of the prosumer */
+	/** A array list of hourly mean consumption of energy of the prosumer */
 	private double[] energy_consumption;
 
 	private Random random;
 
 	/**
-	 * Build a house that both consume and produce energy
+	 * Build a prosumer, randomly generate wind turbines and PV panels, 
+	 * and randomly select energy consumption
 	 * 
 	 * @param id
-	 *            A number that automatically generate by program to represent a
-	 *            prosumer
-	 * @param houseNumber
-	 *            A identity of prosumer
+	 * @param householder
 	 */
-	public Prosumer(int id, int houseNumber) {
+	public Prosumer(int id, String household) {
 		this.id = id;
-		this.houseNumber = houseNumber;
-		this.windTurbines = new ArrayList<WindTurbine>();
-		this.photovoltaicPanels = new ArrayList<PhotovoltaicPanel>();
+		this.householder = household;
 		this.random = new Random();
+
+		// random generate wind turbines and PV panels
+		generateWindTurbine( );
+		generatePVpanel( );
+		
+		// random generate the consumption
+		String[] consumptions = { "EnergyConsumption_PaidWork.json",
+								  "EnergyConsumption_Relative.json",
+								  "EnergyConsumption_Unemployed.json",
+								  "EnergyConsumption_Retired.json" };
+		this.energy_consumption = (new ProsumerConsumptionParser( "src/Data/" + consumptions[random.nextInt(4)] )).parseConsumption();
 	}
 
-	public Prosumer(int id, int houseNumber, String consumption) {
-		this(id, houseNumber);
-		this.energy_consumption = (new ProsumerConsumptionParser(consumption)).parseConsumption();
+	/** Estimate the wind turbines owned by the prosumer */
+	private void generateWindTurbine() {
+		this.windTurbines = new ArrayList<WindTurbine>();
+
+		double percentOfOwner = 0.3;
+		if (random.nextDouble() <= percentOfOwner) {
+			double nWindTurbines = random.nextInt(2) + 1;
+			for (int i = 0; i < nWindTurbines; i++) {
+				switch (random.nextInt(3)) {
+				case 0:
+					this.windTurbines.add(new BergeyExcel10());
+					break;
+				case 1:
+					this.windTurbines.add(new BritwindR9000());
+					break;
+				case 2:
+					this.windTurbines.add(new TheSkystream37());
+					break;
+				}
+			}
+		}
+	}
+
+	/** Estimate the PV panels owned by the prosumer */
+	private void generatePVpanel() {
+		this.photovoltaicPanels = new ArrayList<PhotovoltaicPanel>();
+
+		double percentOfOwner = 0.6;
+		if (random.nextDouble() <= percentOfOwner) {
+			double nPVpanels = random.nextInt(11) + 10;
+			switch (random.nextInt(3)) {
+			case 0:
+				for (int i = 0; i < nPVpanels; i++) {
+					this.photovoltaicPanels.add(new AllmaxM_Plus());
+				}
+				break;
+			case 1:
+				for (int i = 0; i < nPVpanels; i++) {
+					this.photovoltaicPanels.add(new CSUN_S156_5BB());
+				}
+				break;
+			case 2:
+				for (int i = 0; i < nPVpanels; i++) {
+					this.photovoltaicPanels.add(new NeONR_LG365Q1C_A5());
+				}
+				break;
+			}
+		}
 	}
 
 	/**
-	 * Add a wind turbine to the prosumer
+	 * Add one wind turbine to the prosumer
 	 * 
-	 * @param wt
-	 *            wind turbine
+	 * @param wt Wind turbine
 	 */
 	public void addWindTurbine(WindTurbine wt) {
 		this.windTurbines.add(wt);
@@ -76,23 +126,20 @@ public class Prosumer {
 	/**
 	 * Add a photovoltaic panel to the prosumer
 	 * 
-	 * @param pp
-	 *            photovoltaic panel
+	 * @param pp PV panel
 	 */
 	public void addPhotovoltaicPanel(PhotovoltaicPanel pp) {
 		this.photovoltaicPanels.add(pp);
 	}
 
-	/**
-	 * @return A id that automatically generate by program to represent a prosumer
-	 */
+	/** @return A id that represents a prosumer */
 	public int getID() {
 		return this.id;
 	}
 
-	/** @return The house number of the prosumer */
-	public int getHouseNumber() {
-		return this.houseNumber;
+	/** @return The name of householder */
+	public String getHousehold() {
+		return this.householder;
 	}
 
 	/** @return A array list of wind turbines */
@@ -100,22 +147,20 @@ public class Prosumer {
 		return this.windTurbines;
 	}
 
-	/** @return A array list of photovoltaic panels */
+	/** @return A array list of PV panels */
 	public ArrayList<PhotovoltaicPanel> getPhotovoltaicPanels() {
 		return this.photovoltaicPanels;
 	}
 
-	/** @return A price varies between 0.06 and 0.08 per kWh */
+	/** @return A estimated price varies between 0.06 and 0.16 per kWh */
 	public double getCurrentPrice() {
-		return random.nextDouble() * (0.08 - 0.06) + 0.06;
+		// the prive varying form electric utility's selling and buying price
+		return random.nextDouble() * (0.16 - 0.06) + 0.06;
 	}
 
-	/**
-	 * @return A string of house number, information of wind turbines, and
-	 *         information of photovoltaic panels
-	 */
-	public String info() {
-		String info = "House number: " + this.houseNumber + "\n";
+	/** @return The name of householder, wind turbines, and PV panels */
+	public String getInfo() {
+		String info = "Householder: " + this.householder + "\n";
 		info = info + "Wind Turbines:\n";
 		for (WindTurbine wt : this.windTurbines) {
 			info = info + wt.info();
@@ -130,114 +175,86 @@ public class Prosumer {
 		}
 		return info;
 	}
-
+	
+	/** @return The name of householder, number of wind turbines and PV panels */
+	public String getGeneratorInfo() {
+		String info = "Householder: " + this.householder + " ";
+		info = info + "Wind Turbines: " + windTurbines.size() + " ";
+		info = info + "Photovoltaic Panels: " + photovoltaicPanels.size() + "\n";
+		return info;
+	}
 	/**
-	 * Calculate the power of all renewable energy producers with given weather
-	 * information
+	 * Estimate the energy generated by prosumer for one hour
 	 * 
-	 * @param airDensity
-	 * @param windSpeed
-	 * @param solarRadiation
-	 * @return the total power combining of all wind turbines and photovoltaic
-	 *         panels (in 1W)
+	 * @param airDensity Air Density in 1 kg/m^3
+	 * @param windSpeed Wind Speed in 1 m/s
+	 * @param solarRadiation Solar Radiation in 1 kW/m^2
+	 * @return Energy in 1 kWh
 	 */
-	public double powerOutput(double airDensity, double windSpeed, double solarRadiation) {
-		double power = 0;
-
+	public double energyProduce(double minWindSpeed, double maxWindSpeed, double solarRadiation, double temperature) {
+		double energy = 0;
+		
+		if( solarRadiation != 0 ) {
+			
+			double error = solarRadiation/10; 
+			// take a random number in bound +-10%
+			double estimateSolarRadiation = solarRadiation - error + 2 * error * random.nextDouble(); // kWh/m^2
+			
+			for (PhotovoltaicPanel pp : this.photovoltaicPanels) {
+				energy += pp.output(estimateSolarRadiation, temperature);
+			}
+		}
+		
 		for (WindTurbine wt : this.windTurbines) {
-			power = power + wt.powerOutput(airDensity, windSpeed);
+			energy += wt.output(minWindSpeed, maxWindSpeed);
 		}
-		for (PhotovoltaicPanel pp : this.photovoltaicPanels) {
-			power = power + pp.powerOutput(solarRadiation);
-		}
-
-		return power;
+		
+		return energy;
 	}
 
 	/**
+	 * Estimate the energy consumed by the prosumer within given time
 	 * 
-	 * @param hour time in a day
-	 * @return energy that the prosumer use in that hour (in 1kWh)
+	 * @param time_in_day Time in a day between 0 and 24
+	 * @return Energy in 1kWh
 	 */
-	// also the output when renewable energy generator is not considered
-	public double energyConsume(int hour) {
+	// The output when renewable energy generator is not considered
+	public double energyConsume(int time_in_day) {
 
-		// hour is within one day, so is between 0 and 23
-		if (hour < 0 || hour > 23) {
+		if (time_in_day < 0 || time_in_day > 23) {
 			System.out.println("Error: Time(in hour) is out of bound");
 			return 0;
 		}
 
-		// assume the energy consumption data at hour is a mean in kWh
-		double base = this.energy_consumption[hour];
+		// the mean energy consumption data in kWh
+		double base = this.energy_consumption[time_in_day];
 
 		// assume edges of plus/negative 20% is bound 95% of area of normal distribution
 		// and calculate standard deviation
 		double stdDev = (0.4 * base) / (2 * 1.96);
-		//return 0;
 		return Math.max(random.nextGaussian() * stdDev + base, 0);
 
 	}
-	
+
 	/**
-	 * Calculate the total net energy for given hour
-	 * @param airDensity
-	 * @param windSpeed
-	 * @param solarRadiation
-	 * @param duration_h
-	 * @return energy in kWh
+	 * Estimate the total net energy for given hour
+	 * 
+	 * @param minWindSpeed Minimum wind speed in 1 m/s
+	 * @param maxWindSpeed Maximum wind speed in 1 m/s
+	 * @param solarRadiation Solar radiation in 1 kW/m^2
+	 * @param temperature Temperature in 1 degree Celsius
+	 * @param time_in_day Time in a day between 0 and 24
+	 * @return Energy in 1 kWh
 	 */
-	public double output(double airDensity, double windSpeed, double solarRadiation, int duration_h) {
+	public double output(double minWindSpeed, double maxWindSpeed, double solarRadiation, double temperature, int time_in_day) {
 
 		// energy production in 1 hour
-		// energy = power * time
-		double energy_production = powerOutput(airDensity, windSpeed, solarRadiation) / 1000 * 1; // in kWh
-		double energy_consumption = energyConsume(duration_h); // in kWh
+		double energy_production = energyProduce(minWindSpeed, maxWindSpeed, solarRadiation, temperature); // in kWh
+		double energy_consumption = energyConsume(time_in_day); // in kWh
 
-		// energy_remaining is the remaining energy from previous
-		// double total_energy = energy_production + this.energy_remaining - energy_consumption;
 		double total_energy = energy_production - energy_consumption;
 
-		//double result = record(total_energy, duration_h);
-
 		return total_energy;
-		// return result;
 	}
 
-	/* extra prediction
-	// predict production - consumption for next hour
-	private double predictingConsumption(int duration_h) {
-		// not finish
-		return 0;
-	}
-
-	// net_energy > 0 here
-	private double record(double net_energy, int duration_h) {
-
-		// add new record (addition)
-		// this.recording.add(net_energy, duration_h);
-
-		if (net_energy < 0) {
-			return net_energy;
-		}
-
-		// predict future net_energy
-		double prediction = predictingConsumption(duration_h);
-
-		double result = net_energy;
-
-		// energy at storage is recalculate
-		if (prediction < 0) {
-			if (result - prediction < 0) {
-				this.energy_remaining = result;
-				result = 0;
-			} else {
-				this.energy_remaining = prediction;
-				result = result - prediction;
-			}
-		}
-
-		return result;
-	}
-	*/
 }

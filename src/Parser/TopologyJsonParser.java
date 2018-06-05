@@ -3,15 +3,14 @@ package Parser;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Random;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import EnergyGenerator.PhotovoltaicPanel;
-import EnergyGenerator.WindTurbine;
-import Network.NodeNetwork;
+import Network.Network;
 import Network.Prosumer;
 
 /**
@@ -24,12 +23,12 @@ import Network.Prosumer;
 public class TopologyJsonParser {
 
 	/** A network of the prosumer */
-	private NodeNetwork network;
+	private Network network;
 
-	/** Prosumers' information */
+	/** Location of prosumers' information */
 	private String prosumer_info;
 
-	/** Relations' information */
+	/** Location of relations' information */
 	private String relation_info;
 
 	/** Id of the next new prosumer */
@@ -42,7 +41,7 @@ public class TopologyJsonParser {
 	 * @param prosumer_info
 	 * @param relation_info
 	 */
-	public TopologyJsonParser(NodeNetwork network, String prosumer_info, String relation_info) {
+	public TopologyJsonParser(Network network, String prosumer_info, String relation_info) {
 
 		this.network = network;
 		this.prosumer_info = prosumer_info;
@@ -65,12 +64,14 @@ public class TopologyJsonParser {
 
 		try {
 			prosumers_info = parser.parse(new FileReader(this.prosumer_info));
-			JSONArray prosumers = (JSONArray) prosumers_info;
-
-			Iterator<JSONObject> iterator = prosumers.iterator();
+			//JSONArray prosumers = (JSONArray) prosumers_info;
+			JSONObject prosumers = (JSONObject) prosumers_info;
+			
+			JSONArray householders = (JSONArray) prosumers.get("householders");
+			Iterator<String> iterator = householders.iterator();
 			while (iterator.hasNext()) {
-				JSONObject prosumer = iterator.next();
-				parseProsumer(prosumer);
+				String householder = iterator.next();
+				parseProsumer(householder);
 			}
 
 		} catch (IOException | ParseException e) {
@@ -83,65 +84,17 @@ public class TopologyJsonParser {
 	/**
 	 * Add one prosumer to topology's nodes
 	 * 
-	 * @param obj
-	 *            Information of one prosumer
+	 * @param householder
+	 *            Name of the householder
 	 */
-	private void parseProsumer(JSONObject obj) {
+	private void parseProsumer(String householder) {
 
-		int houseNumber = Integer.parseInt((String) obj.get("houseNumber"));
-		this.network.hashHouseId(houseNumber, this.prosumer_ID);
-		// System.out.println( houseNumber );
+		this.network.hashHouseId(householder, this.prosumer_ID);
 
-		String energy_consumption = "src/Data/" + (String) obj.get("consumption");
-
-		Prosumer prosumer = new Prosumer(this.prosumer_ID, houseNumber, energy_consumption);
-
-		parseWindTurbine(prosumer, (JSONArray) obj.get("windTurbines"));
-		parsePhotovoltaicPanel(prosumer, (JSONArray) obj.get("photovolaticPanels"));
+		Prosumer prosumer = new Prosumer(this.prosumer_ID, householder);
 
 		this.network.addProsumer(prosumer);
 		this.prosumer_ID++;
-
-	}
-
-	/**
-	 * Add wind turbines to a prosumer
-	 * 
-	 * @param prosumer
-	 *            A house that both consume and produce energy
-	 * @param windTurbines
-	 *            A array of wind turbine's information
-	 */
-	private void parseWindTurbine(Prosumer prosumer, JSONArray windTurbines) {
-
-		Iterator<JSONObject> iterator = windTurbines.iterator();
-		while (iterator.hasNext()) {
-			JSONObject windTurbine = iterator.next();
-			double bladeLength = Double.parseDouble((String) windTurbine.get("bladeLength"));
-			double maxPowerOutput = Double.parseDouble((String) windTurbine.get("maxPowerOutput"));
-			prosumer.addWindTurbine(new WindTurbine(bladeLength, maxPowerOutput));
-			// System.out.println( bladeLength + " " + maxPowerOutput);
-		}
-
-	}
-
-	/**
-	 * Add photovoltaic panels to a prosumer
-	 * 
-	 * @param prosumer
-	 *            A house that both consume and produce energy
-	 * @param photovoltaicPanels
-	 *            A array of photovoltaic panel's information
-	 */
-	private void parsePhotovoltaicPanel(Prosumer prosumer, JSONArray photovoltaicPanels) {
-
-		Iterator<JSONObject> iterator = photovoltaicPanels.iterator();
-		while (iterator.hasNext()) {
-			JSONObject windTurbine = iterator.next();
-			double panelArea = Double.parseDouble((String) windTurbine.get("panelArea"));
-			double maxPowerOutput = Double.parseDouble((String) windTurbine.get("maxPowerOutput"));
-			prosumer.addPhotovoltaicPanel(new PhotovoltaicPanel(panelArea, maxPowerOutput));
-		}
 
 	}
 
@@ -186,10 +139,12 @@ public class TopologyJsonParser {
 	 */
 	private void parseConnection(JSONObject connection) {
 
-		int houseA = this.network.getId(Integer.parseInt((String) connection.get("houseNumber1")));
-		int houseB = this.network.getId(Integer.parseInt((String) connection.get("houseNumber2")));
-		double resistance = Double.parseDouble((String) connection.get("resistance"));
-		double maxLoad = Double.parseDouble((String) connection.get("max_load"));
+		int houseA = Integer.parseInt((String) connection.get("houseNumber1"));
+		int houseB = Integer.parseInt((String) connection.get("houseNumber2"));
+		// Normal resistance of transmission line is estimated to be 1 ohm
+		// Take a bound +-20% to randomly generate resistance of transmission line
+		double resistance = 0.8 + 0.4 * new Random().nextDouble(); // in 1 ohm
+		double maxLoad = 10; // in 1 kW
 
 		this.network.addConnection(houseA, houseB, maxLoad, resistance);
 
